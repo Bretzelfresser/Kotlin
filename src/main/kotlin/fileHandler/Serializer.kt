@@ -1,4 +1,0 @@
-package fileHandler
-
-class Serializer {
-}

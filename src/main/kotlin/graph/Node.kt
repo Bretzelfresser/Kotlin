@@ -17,7 +17,7 @@ data class Node(val id : Int, val lat : Double, val lon : Double) : Comparable<N
         outgoingEdges.add(edge)
     }
 
-    fun addEdge(successor : Int, type : Int, maxSpeed : Int){
-        addEdge(Edge(this.id, successor, type, maxSpeed))
+    fun addEdge(successor : Int,cost : Int, type : Int, maxSpeed : Int){
+        addEdge(Edge(this.id, successor,cost, type, maxSpeed))
     }
 }

@@ -27,45 +27,74 @@ data class Graph(val amountNodes : Int, val amountEdges : Int, val nodeList : Ar
 
     companion object {
 
-        var staticIsFun : Int = 0
+        fun parseGraph(path : String) : Graph {
 
-        fun parseGraph(path : String) : Graph{
-
-        var numNodes : Int = 0
-        var numEdges : Int = 0
+            var numNodes : Int = 0
+            var numEdges : Int = 0
+            var adjacencyList = Array(numNodes) { _ -> Node(1, 1.0, 1.0) }
 
 
             // 0..5:    clear metadata
             // 5:       num of nodes
             // 6:       num of edges
-            // 7..?:    id, ignore, lat, long, ignore
-            val text = File(path).readText()
-            val lineList = text.split("\n")
+            // 7..x:    id, ignore, lat, long, ignore
+            // x..end:  srcId, targetId, cost, ignore, ignore
 
-            try {
-                numNodes = lineList[5].toInt()
-                numEdges = lineList[6].toInt()
-            } catch (nfe: NumberFormatException) {
-                // not a valid int
-            }
-            var adjacencyList = Array(numNodes) { Node(1, 0.0, 0.0) }
-
+            // Read File
             var lineString : List<String>
-            val offset : Int = 6
-            for(i in 0..numNodes+1) {
-                lineString = lineList[i + offset].split(" ")
+            val reader = File(path).inputStream().bufferedReader()
+            val iterator = reader.lines().iterator()  // lines = kokain lines
 
-                println(lineString)
+            // organize data structure (adjacencyList)
+            var lineNumber = 0
+            val offset = 7
+            while(iterator.hasNext()) {
+                val line = iterator.next()
+                lineNumber++
 
-                adjacencyList[i + offset] = Node(
-                    lineString[0].toInt(),
-                    lineString[2].toDouble(),
-                    lineString[3].toDouble() )
+                // print current progress
+                if (lineNumber%(Math.pow(10.0, 5.0).toInt()) == 0)
+                    println((lineNumber / 100000).toString() + " / " + ((numNodes + numEdges)/ 100000).toString())
+
+                // metadata
+                if(lineNumber < 6)
+                    continue
+                if(lineNumber == 6){
+                    numNodes = parseInt(line)
+                    adjacencyList = Array(numNodes) { _ -> Node(1, 1.0, 1.0) }
+                    continue
+                }
+                if (lineNumber == 7){
+                    numEdges = parseInt(line)
+                    continue
+                }
+                // Organize Nodes
+                if(lineNumber < numNodes + offset) {
+                    lineString = line.split(" ")
+
+                    //println("index: " + (lineNumber - offset).toString() + ", linestring: " + lineString)
+                    adjacencyList[lineNumber - offset - 1] = Node(
+                        lineString[0].toInt(),
+                        lineString[2].toDouble(),
+                        lineString[3].toDouble()
+                    )
+                // Organize Edges
+                } else {
+                    val lineString = line.split(" ")
+
+                    val edge = Edge(parseInt(lineString[0]), parseInt(lineString[1]), parseInt(lineString[2]), parseInt(lineString[3]), parseInt(lineString[4]))
+                    adjacencyList[edge.preDecessor].addEdge(edge)
+                }
             }
-
-
-
+            reader.close()
             return Graph(numNodes, numEdges, adjacencyList)
+        }
+
+        /**
+         *  fickt euch alle kotlin parse int developer
+         */
+        private fun parseInt(string : String) : Int{
+            return string.toDouble().toInt()
         }
     }
 
