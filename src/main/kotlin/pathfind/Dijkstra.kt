@@ -1,6 +1,8 @@
 package pathfind
 
 import graph.Graph
+import java.util.*
+import kotlin.collections.ArrayList
 
 /**
  * graph Graph: A graph formatted as adjacency list.
@@ -8,6 +10,56 @@ import graph.Graph
  */
 class Dijkstra(val graph: Graph, val startNode : Int){
     val processedNodes: MutableSet<Int> = mutableSetOf()
+    val deque = PriorityQueue<Int>()
+    val table = Array<Pair<Int, Double>>(graph.amountNodes){ Pair(0, Double.POSITIVE_INFINITY) }
+
+    init {
+        println("init called")
+        deque.add(startNode)
+        table[startNode] = Pair(startNode, 0.0)
+        preProcess()
+    }
+
+    private fun preProcess(){
+        while (!deque.isEmpty()){
+            val currentWeight = getWeight(deque.peek())
+            val current = deque.poll()
+            //iterate over all outgoing Edges
+            for(edge in graph.nodeList[current].outgoingEdges){
+                val needWeight = edge.cost + currentWeight
+                //only update the node to the queue when not processed
+                if (!processedNodes.contains(edge.successor) &&  needWeight < getWeight(edge.successor)){
+                    deque.add(edge.successor)
+                    table[edge.successor] = Pair(current, needWeight)
+                }
+            }
+            processedNodes.add(current)
+            val processed = processedNodes.size
+            if (processed%(Math.pow(10.0, 5.0).toInt()) == 0)
+                println(((processed / 1000) / ((graph.amountNodes)/ 100000)).toString() + "%")
+        }
+    }
+
+    /**
+     * returns a iterator that starts with the start Node and ends with the end Node
+     */
+    fun getPath(node : Int) : Iterator<Int>{
+        var currentNode = node
+        val iterable = ArrayList<Int>()
+        iterable.add(currentNode)
+        while (currentNode != startNode){
+            currentNode = table[currentNode].first
+            iterable.add(currentNode)
+        }
+        iterable.reverse()
+        return iterable.iterator();
+    }
+
+    private fun getWeight(node : Int) : Double{
+        if(node >= graph.amountNodes)
+            return Double.POSITIVE_INFINITY
+       return table[node].second
+    }
 
     /*Funktion Dijkstra(Graph, Startknoten):
           initialisiere(Graph,Startknoten,abstand[],vorgänger[],Q)
