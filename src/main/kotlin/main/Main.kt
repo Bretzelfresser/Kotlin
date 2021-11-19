@@ -1,12 +1,13 @@
 import graph.Graph
 import pathfind.Dijkstra
 import java.io.File
+import java.util.concurrent.Executors
 import kotlin.system.measureTimeMillis
 
 val GRAPH : Graph
+val DIJKSTRA : Dijkstra
 val serializeGraphTime = measureTimeMillis {GRAPH = Graph.Companion.parseGraph(getResourceLocation("germany.fmi"))}
-val processDijkstra = measureTimeMillis { Dijkstra(GRAPH, 0) }
-//val GRAPH : Graph = Graph.Companion.parseGraph(getResourceLocation("germany.fmi"))
+val processDijkstra = measureTimeMillis {DIJKSTRA = Dijkstra(GRAPH, 8371825) }
 
 fun getAbsolutePath() : String{
     val directory = File("")
@@ -22,10 +23,7 @@ fun main(args: Array<String>) {
     val secondsDijkstra = processDijkstra / 1000
     println("$seconds seconds to serialize the graph")
     println("$secondsDijkstra seconds needed to process Dijkstra")
-
-    // Try adding program arguments via Run/Debug configuration.
-    // Learn more about running applications: https://www.jetbrains.com/help/idea/running-applications.html.
-    println("Program arguments: ${args.joinToString()}")
+    println(DIJKSTRA.getWeightToNode(16743651))
 
 
 

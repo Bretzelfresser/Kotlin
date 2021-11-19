@@ -1,8 +1,10 @@
 package pathfind
 
 import graph.Graph
+import java.lang.IllegalArgumentException
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.system.measureTimeMillis
 
 /**
  * graph Graph: A graph formatted as adjacency list.
@@ -21,22 +23,46 @@ class Dijkstra(val graph: Graph, val startNode : Int){
     }
 
     private fun preProcess(){
-        while (!deque.isEmpty()){
-            val currentWeight = getWeight(deque.peek())
-            val current = deque.poll()
+        val processedNodes: Array<Boolean> = Array<Boolean>(graph.amountNodes) { false }
+        val tree = PriorityQueue<TableEntry>()
+        val start = TableEntry(startNode, startNode, 0)
+
+        var treeAdd : Long = 0
+        var treeRemove : Long = 0
+        var treePoll : Long = 0
+
+        tree.add(start)
+        table[startNode] = start
+        var amountProcessed : Int = 0
+
+
+        while (!tree.isEmpty()){
+            val current : TableEntry
+            treePoll += measureTimeMillis { current = tree.poll() }
+            val currentNode = current.node;
             //iterate over all outgoing Edges
-            for(edge in graph.nodeList[current].outgoingEdges){
-                val needWeight = edge.cost + currentWeight
+            for(edge in graph.nodeList[currentNode].outgoingEdges){
+
                 //only update the node to the queue when not processed
-                if (!processedNodes.contains(edge.successor) &&  needWeight < getWeight(edge.successor)){
-                    deque.add(edge.successor)
-                    table[edge.successor] = Pair(current, needWeight)
+                if(processedNodes[edge.successor])
+                    continue
+                val needWeight = edge.cost + current.neededWeight
+                if(table[edge.successor].neededWeight == Int.MAX_VALUE){
+                    val table = TableEntry(edge.successor, currentNode, needWeight)
+                    this.table[edge.successor] = table
+                    treeAdd += measureTimeMillis {tree.add(table)}
+                }
+                else if (needWeight < table[edge.successor].neededWeight){
+                   table[edge.successor].neededWeight = needWeight
+                    treeRemove += measureTimeMillis{ table[edge.successor] }
+                    treeAdd += measureTimeMillis {tree.add(table[edge.successor])}
+
                 }
             }
-            processedNodes.add(current)
-            val processed = processedNodes.size
-            if (processed%(Math.pow(10.0, 5.0).toInt()) == 0)
-                println(((processed / 1000) / ((graph.amountNodes)/ 100000)).toString() + "%")
+            processedNodes[currentNode] = true
+            amountProcessed++
+            if (amountProcessed%(Math.pow(10.0, 5.0).toInt()) == 0)
+                println(String.format("%.1f", (amountProcessed / (graph.amountNodes / 100.0f))) + "%")
         }
     }
 
@@ -44,21 +70,25 @@ class Dijkstra(val graph: Graph, val startNode : Int){
      * returns a iterator that starts with the start Node and ends with the end Node
      */
     fun getPath(node : Int) : Iterator<Int>{
+        if(!hasPath(node))
+            throw IllegalArgumentException("there has to ba a path to that node")
         var currentNode = node
         val iterable = ArrayList<Int>()
         iterable.add(currentNode)
         while (currentNode != startNode){
-            currentNode = table[currentNode].first
+            currentNode = table[currentNode].preDecessor
             iterable.add(currentNode)
         }
         iterable.reverse()
         return iterable.iterator();
     }
 
-    private fun getWeight(node : Int) : Double{
-        if(node >= graph.amountNodes)
-            return Double.POSITIVE_INFINITY
-       return table[node].second
+    fun hasPath(node : Int) : Boolean{
+        return table[node].neededWeight != Int.MAX_VALUE
+    }
+
+    fun getWeightToNode(node : Int) : Int{
+        return table[node].neededWeight
     }
 
     /*Funktion Dijkstra(Graph, Startknoten):

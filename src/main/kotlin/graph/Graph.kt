@@ -69,7 +69,7 @@ data class Graph(val amountNodes : Int, val amountEdges : Int, val nodeList : Ar
                     continue
                 }
                 // Organize Nodes
-                if(lineNumber < numNodes + offset) {
+                if(lineNumber <= numNodes + offset) {
                     lineString = line.split(" ")
 
                     //println("index: " + (lineNumber - offset).toString() + ", linestring: " + lineString)
