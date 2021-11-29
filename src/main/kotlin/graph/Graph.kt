@@ -53,8 +53,14 @@ data class Graph(val amountNodes : Int, val amountEdges : Int, val nodeList : Ar
                 lineNumber++
 
                 // print current progress
-                if (lineNumber%(Math.pow(10.0, 5.0).toInt()) == 0)
-                    println(((lineNumber / 1000) / ((numNodes + numEdges)/ 100000)).toString() + "%")
+                if (lineNumber%(Math.pow(10.0, 6.0).toInt()) == 0) {
+                    // Console Prints
+                    val percent = (lineNumber / ((numNodes + numEdges)/ 100) )
+                    print (percent.toString() + "%: [")
+                    for (i in 0..percent) { print("#") }
+                    for (i in 0..100-percent){ print("-") }
+                    print("] \n\n")
+                }
 
                 // metadata
                 if(lineNumber < 6)

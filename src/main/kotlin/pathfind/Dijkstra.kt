@@ -11,14 +11,11 @@ import kotlin.system.measureTimeMillis
  * startNode Int: The index of the starting node.
  */
 class Dijkstra(val graph: Graph, val startNode : Int){
-    val processedNodes: MutableSet<Int> = mutableSetOf()
-    val deque = PriorityQueue<Int>()
-    val table = Array<Pair<Int, Double>>(graph.amountNodes){ Pair(0, Double.POSITIVE_INFINITY) }
+
+    val table = Array<TableEntry>(graph.amountNodes){ TableEntry(-1,-1,Int.MAX_VALUE) }
 
     init {
-        println("init called")
-        deque.add(startNode)
-        table[startNode] = Pair(startNode, 0.0)
+        println("dijkstra started")
         preProcess()
     }
 
@@ -64,6 +61,10 @@ class Dijkstra(val graph: Graph, val startNode : Int){
             if (amountProcessed%(Math.pow(10.0, 5.0).toInt()) == 0)
                 println(String.format("%.1f", (amountProcessed / (graph.amountNodes / 100.0f))) + "%")
         }
+
+        println("Add: $treeAdd")
+        println("Remove: $treeRemove")
+        println("Poll: $treePoll")
     }
 
     /**
@@ -119,9 +120,4 @@ class Dijkstra(val graph: Graph, val startNode : Int){
               vorgänger[v]:= u
     */
 
-    // track used nodes
-    // track reachable nodes -> sort in Heap
-    // track predecessors
-    // track length
-    //
 }
