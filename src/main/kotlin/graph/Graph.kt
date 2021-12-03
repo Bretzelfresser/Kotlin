@@ -2,33 +2,7 @@ package graph
 
 import java.io.File
 
-// 0 1488520 147 9 130
-
 class Graph() {
-
-    /*
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as Graph
-
-        if (amountNodes != other.amountNodes) return false
-        if (amountEdges != other.amountEdges) return false
-        if (!nodeList.contentEquals(other.nodeList)) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = amountNodes
-        result = 31 * result + amountEdges.hashCode()
-        result = 31 * result + nodeList.contentHashCode()
-        return result
-    }
-
-     */
-
 
     companion object {
 
@@ -40,8 +14,9 @@ class Graph() {
         var predecessor = IntArray(0)
         var nodeWeight = IntArray(0)
 
-        //TODO:
-        // Aufbau: [ startNode1, endNode1, cost1, startNode2, endNode2, cost2, startNode3, endNode3, cost3, ... ]
+        // edgeList: [ endNode1, cost1, endNode2, cost2 startNode3, cost3, ... ]
+        // edgeListPos speichert die position in der edgeList, an der die ausgehenden Kanten der node starten
+        // edgeAmound speichert die Anzahl an ausgehenden Kanten der node
         var edgeList = IntArray(0)
         var edgeListPos = IntArray(0)
         var edgeAmount = IntArray(0)
@@ -149,67 +124,6 @@ class Graph() {
             }
             return intArray
         }
-
-
-/*
-        /**
-         * Searches with binary search in the edgeList for all the outgoing edges.
-         * Returns an Iterable of Pairs structured as follows: Pair<targetNodeId, cost>.
-         */
-        fun getOutgoingEdges(nodeId : Int) : IntArray {
-            return getOutgoingEdges(nodeId, 0, Graph.numEdges - 1)
-        }
-
-
-        private fun getOutgoingEdges(nodeId : Int, start : Int, end : Int) : IntArray {
-
-            val middle : Int = ((end - start) / 2) + start
-            //println("startNode: ${edgeList[2 * start]}, middleNode: ${edgeList[2 * middle]}, endNode: ${edgeList[2 * end]}")
-            //println("start: ${start}, middle: ${middle}, end: ${end}")
-
-            return if ( edgeList[3 * end] - edgeList[3 * start] <= 10) {
-                sequentialSearch(nodeId, start, end)
-            } else if ( edgeList[3 * middle] < nodeId ) {
-                getOutgoingEdges(nodeId, middle, end )
-            } else {
-                getOutgoingEdges(nodeId, start, middle)
-            }
-        }
-
-        // letztes Stück sequentiell suchen
-        private fun sequentialSearch(nodeId: Int, start: Int, end: Int): IntArray {
-
-            val outgoingEdges = LinkedList<Int>()
-            var foundEdges = 0
-            var tempNode = start - 11       // weil max outgoingEdges ist 11
-            if (tempNode < 0) {
-                tempNode = 0
-            }
-
-            while (tempNode <= end + 11) {       // weil max outgoingEdges ist 11
-                var performance = 3 * tempNode
-                if (edgeList[performance] == nodeId) {
-                    outgoingEdges.add(edgeList[performance + 1])
-                    outgoingEdges.add(edgeList[performance + 2])
-                    foundEdges++
-                }
-
-                // increment
-                if (tempNode < numEdges - 1) {
-                    tempNode++
-                } else {
-                    break
-                }
-            }
-
-            return outgoingEdges.toIntArray()
-        }
-
- */
-
-
-
-
 
 
 

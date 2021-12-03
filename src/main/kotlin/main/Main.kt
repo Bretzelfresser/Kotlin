@@ -8,7 +8,7 @@ import java.util.concurrent.Executors
 import kotlin.system.measureTimeMillis
 
 val serializeGraphTime = measureTimeMillis { Graph.parseGraph(getResourceLocation("germany.fmi"))}
-val processDijkstra = measureTimeMillis { Dijkstra(0) }
+val processDijkstra = measureTimeMillis { Dijkstra(8371825) }
 
 fun getAbsolutePath() : String{
     val directory = File("")
@@ -25,7 +25,8 @@ fun main(args: Array<String>) {
     println("$seconds seconds to serialize the graph")
     println("$secondsDijkstra seconds needed to process Dijkstra")
 
-    /*println(Graph.nodeWeight[16743651] )
+    //println(Graph.nodeWeight[434859] )
+    println(Graph.nodeWeight[16743651] )
     println(Graph.nodeWeight[16743652] )
     println(Graph.nodeWeight[16743653] )
     println(Graph.nodeWeight[16743654] )
@@ -34,7 +35,7 @@ fun main(args: Array<String>) {
     println(Graph.nodeWeight[16743657] )
     println(Graph.nodeWeight[16743658] )
     println(Graph.nodeWeight[16743659] )
-    println(Graph.nodeWeight[16743660] )*/
+    println(Graph.nodeWeight[16743660] )
 
     /*printNode(0)
     printNode(1)
@@ -69,7 +70,6 @@ fun printNode(node : Int) {
     var temp = Graph.getOutgoingEdges(node)
     var iterator = temp.iterator()
     while (iterator.hasNext()) {
-        println( " -> " + iterator.next() )
-        iterator.next()
+        println( " -> " + iterator.next().toString() + ", " + iterator.next().toString() )
     }
 }

@@ -124,14 +124,18 @@ class Dijkstra(val startId : Int) {
                 edgeCost = outgoingEdges[2 * i + 1]
                 targetNodeWeight = Graph.nodeWeight[targetNode]
                 //only update the node to the queue when not processed
-                if(processedNodes[targetNode])
+                if (processedNodes[targetNode])
                     continue
                 else {
-                    newWeight = edgeCost + targetNodeWeight
-                    if (newWeight < targetNodeWeight) {
-                        //prioRemove += measureTimeMillis{ priorityTree.add(TreeNode(targetNode, targetNodeWeight)) }
-                        targetNodeWeight = newWeight
-                        prioAdd += measureTimeMillis { priorityQueue.add( Pair(targetNode, targetNodeWeight)) }
+                    newWeight = edgeCost + Graph.nodeWeight[currentNode.first]
+                    if (targetNodeWeight == Int.MAX_VALUE) {
+                        Graph.nodeWeight[targetNode] = newWeight
+                        prioAdd += measureTimeMillis {priorityQueue.add( Pair(targetNode, newWeight) )}
+                    }
+                    else if (newWeight < targetNodeWeight) {
+                        //prioRemove += measureTimeMillis{ priorityQueue.remove(Pair(targetNode, targetNodeWeight)) }
+                        Graph.nodeWeight[targetNode] = newWeight
+                        prioAdd += measureTimeMillis { priorityQueue.add( Pair(targetNode, newWeight)) }
                     }
                 }
 
