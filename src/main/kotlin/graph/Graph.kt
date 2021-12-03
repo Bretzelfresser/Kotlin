@@ -141,7 +141,6 @@ class Graph() {
 
         fun getOutgoingEdges(nodeId : Int) : IntArray {
             var len = edgeAmount[nodeId]
-            //var performance =
 
             var intArray : IntArray = IntArray(2 * len)
             for (i in 0 until len) {
