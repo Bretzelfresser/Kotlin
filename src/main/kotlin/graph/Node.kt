@@ -2,7 +2,7 @@ package graph
 
 import java.util.LinkedList
 
-data class Node(val id : Int, val lat : Double, val lon : Double) : Comparable<Node>{
+data class Node(val id : Int) : Comparable<Node>{
     var outgoingEdges = LinkedList<Edge>()
 
     override fun compareTo(other : Node) : Int {

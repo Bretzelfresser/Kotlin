@@ -1,71 +1,170 @@
 package pathfind
 
 import graph.Graph
-import java.lang.IllegalArgumentException
 import java.util.*
-import kotlin.collections.ArrayList
 import kotlin.system.measureTimeMillis
+
 
 /**
  * graph Graph: A graph formatted as adjacency list.
  * startNode Int: The index of the starting node.
  */
-class Dijkstra(val graph: Graph, val startNode : Int){
+class Dijkstra(val startId : Int) {
 
-    val table = Array<TableEntry>(graph.amountNodes){ TableEntry(-1,-1,Int.MAX_VALUE) }
+
+
+    //val table = Array<TableEntry>(Graph.numNodes){ TableEntry(-1,-1,Int.MAX_VALUE) }
 
     init {
         println("dijkstra started")
         preProcess()
     }
 
+    /*
     private fun preProcess(){
-        val processedNodes: Array<Boolean> = Array<Boolean>(graph.amountNodes) { false }
-        val tree = PriorityQueue<TableEntry>()
-        val start = TableEntry(startNode, startNode, 0)
 
-        var treeAdd : Long = 0
-        var treeRemove : Long = 0
-        var treePoll : Long = 0
+        val compareSecond = compareBy<Pair<Int, Int>> { it.second }
+        val priorityQueue = PriorityQueue<Pair<Int, Int>>(compareSecond)
 
-        tree.add(start)
-        table[startNode] = start
+        val processedNodes: BooleanArray = BooleanArray( Graph.numNodes )
+
+        var prioAdd : Long = 0
+        var prioRemove : Long = 0
+        var prioPoll : Long = 0
         var amountProcessed : Int = 0
 
+        // Pair< id : Int, distance : Int>
+        val startPair = Pair<Int, Int>(startId, 0)
+        Graph.nodeWeight[startId] = 0
+        priorityQueue.add(startPair)
 
-        while (!tree.isEmpty()){
-            val current : TableEntry
-            treePoll += measureTimeMillis { current = tree.poll() }
-            val currentNode = current.node;
+        while (!priorityQueue.isEmpty()) {
+            val currentNode : Pair<Int, Int>
+            prioPoll += measureTimeMillis { currentNode = priorityQueue.poll() }
+
             //iterate over all outgoing Edges
-            for(edge in graph.nodeList[currentNode].outgoingEdges){
+            val outgoingEdges = Graph.getOutgoingEdges(currentNode.first)
+            var iter = outgoingEdges.iterator()
+            while (iter.hasNext()) {
 
+                var targetNode = iter.next()
+                var edgeCost = iter.next()
+                var targetNodeWeight = Graph.nodeWeight[targetNode]
                 //only update the node to the queue when not processed
-                if(processedNodes[edge.successor])
+                if(processedNodes[targetNode])
                     continue
-                val needWeight = edge.cost + current.neededWeight
-                if(table[edge.successor].neededWeight == Int.MAX_VALUE){
-                    val table = TableEntry(edge.successor, currentNode, needWeight)
-                    this.table[edge.successor] = table
-                    treeAdd += measureTimeMillis {tree.add(table)}
+                val newWeight = edgeCost + targetNodeWeight
+                if (targetNodeWeight == Int.MAX_VALUE) {
+                    targetNodeWeight = newWeight
+                    prioAdd += measureTimeMillis {priorityQueue.add( Pair(targetNode, newWeight) )}
                 }
-                else if (needWeight < table[edge.successor].neededWeight){
-                   table[edge.successor].neededWeight = needWeight
-                    treeRemove += measureTimeMillis{ table[edge.successor] }
-                    treeAdd += measureTimeMillis {tree.add(table[edge.successor])}
+                else if (newWeight < targetNodeWeight) {
+                    prioRemove += measureTimeMillis{ priorityQueue.add(Pair(targetNode, targetNodeWeight)) }
+                    targetNodeWeight = newWeight
+                    prioAdd += measureTimeMillis {priorityQueue.add(Pair(targetNode, targetNodeWeight))}
 
                 }
             }
-            processedNodes[currentNode] = true
+            processedNodes[currentNode.first] = true
             amountProcessed++
             if (amountProcessed%(Math.pow(10.0, 5.0).toInt()) == 0)
-                println(String.format("%.1f", (amountProcessed / (graph.amountNodes / 100.0f))) + "%")
+                println(String.format("%.1f", (amountProcessed / (Graph.numNodes / 100.0f))) + "%")
         }
 
-        println("Add: $treeAdd")
-        println("Remove: $treeRemove")
-        println("Poll: $treePoll")
+        println("Add: $prioAdd")
+        println("Remove: $prioRemove")
+        println("Poll: $prioPoll")
     }
+
+     */
+
+
+
+
+
+
+
+
+    private fun preProcess(){
+
+        val compareSecond = compareBy<Pair<Int, Int>> { it.second }
+        val priorityQueue = PriorityQueue<Pair<Int, Int>>(compareSecond)
+        //val priorityTree = Tree()
+
+        val processedNodes : BooleanArray = BooleanArray( Graph.numNodes )
+
+        var prioAdd : Long = 0
+        var prioRemove : Long = 0
+        var prioPoll : Long = 0
+        var amountProcessed : Int = 0
+
+        // Pair< id : Int, distance : Int>
+        val startPair = Pair(startId, 0)
+        Graph.nodeWeight[startId] = 0
+        priorityQueue.add(startPair)
+
+
+        // Schleifenvariablen deklarieren
+        var outgoingEdges : IntArray
+        var targetNode : Int
+        var edgeCost : Int
+        var targetNodeWeight : Int
+        var newWeight : Int
+        var currentNode : Pair<Int, Int>
+
+
+        while (!priorityQueue.isEmpty()) {
+            prioPoll += measureTimeMillis { currentNode = priorityQueue.poll() }
+
+            //iterate over all outgoing Edges
+            outgoingEdges = Graph.getOutgoingEdges(currentNode.first)
+            for (i in 0 until outgoingEdges.size / 2) {
+
+                targetNode = outgoingEdges[2 * i]
+                edgeCost = outgoingEdges[2 * i + 1]
+                targetNodeWeight = Graph.nodeWeight[targetNode]
+                //only update the node to the queue when not processed
+                if(processedNodes[targetNode])
+                    continue
+                else {
+                    newWeight = edgeCost + targetNodeWeight
+                    if (newWeight < targetNodeWeight) {
+                        //prioRemove += measureTimeMillis{ priorityTree.add(TreeNode(targetNode, targetNodeWeight)) }
+                        targetNodeWeight = newWeight
+                        prioAdd += measureTimeMillis { priorityQueue.add( Pair(targetNode, targetNodeWeight)) }
+                    }
+                }
+
+            }
+            processedNodes[currentNode.first] = true
+
+
+            amountProcessed++
+            if (amountProcessed%(Math.pow(10.0, 5.0).toInt()) == 0)
+                println(String.format("%.1f", (amountProcessed / (Graph.numNodes / 100.0f))) + "%")
+
+        }
+
+        println("Add: $prioAdd")
+        println("Remove: $prioRemove")
+        println("Poll: $prioPoll")
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+    /*
+
+
+
 
     /**
      * returns a iterator that starts with the start Node and ends with the end Node
@@ -91,6 +190,12 @@ class Dijkstra(val graph: Graph, val startNode : Int){
     fun getWeightToNode(node : Int) : Int{
         return table[node].neededWeight
     }
+
+
+
+     */
+
+
 
     /*Funktion Dijkstra(Graph, Startknoten):
           initialisiere(Graph,Startknoten,abstand[],vorgänger[],Q)
@@ -120,4 +225,11 @@ class Dijkstra(val graph: Graph, val startNode : Int){
               vorgänger[v]:= u
     */
 
+
+
+
+
+
+
 }
+

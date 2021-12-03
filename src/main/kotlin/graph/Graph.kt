@@ -1,10 +1,14 @@
 package graph
 
 import java.io.File
+import java.util.*
+import java.util.function.IntBinaryOperator
 
+// 0 1488520 147 9 130
 
-data class Graph(val amountNodes : Int, val amountEdges : Int, val nodeList : Array<Node>) {
+class Graph() {
 
+    /*
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -25,14 +29,26 @@ data class Graph(val amountNodes : Int, val amountEdges : Int, val nodeList : Ar
         return result
     }
 
+     */
+
+
     companion object {
 
-        fun parseGraph(path : String) : Graph {
+        var numNodes = -1
+        var numEdges = -1
 
-            var numNodes : Int = 0
-            var numEdges : Int = 0
-            var adjacencyList = Array(numNodes) { _ -> Node(1, 1.0, 1.0) }
+        var lat = DoubleArray(0)
+        var lon = DoubleArray(0)
+        var predecessor = IntArray(0)
+        var nodeWeight = IntArray(0)
 
+        //TODO:
+        // Aufbau: [ startNode1, endNode1, cost1, startNode2, endNode2, cost2, startNode3, endNode3, cost3, ... ]
+        var edgeList = IntArray(0)
+        var edgeListPos = IntArray(0)
+        var edgeAmount = IntArray(0)
+
+        fun parseGraph(path : String) {
 
             // 0..5:    clear metadata
             // 5:       num of nodes
@@ -45,7 +61,7 @@ data class Graph(val amountNodes : Int, val amountEdges : Int, val nodeList : Ar
             val reader = File(path).inputStream().bufferedReader()
             val iterator = reader.lines().iterator()  // lines = kokain lines
 
-            // organize data structure (adjacencyList)
+            // organize data structure (edgeList)
             var lineNumber = 0
             val offset = 7
             while(iterator.hasNext()) {
@@ -59,52 +75,126 @@ data class Graph(val amountNodes : Int, val amountEdges : Int, val nodeList : Ar
                     print (percent.toString() + "%: [")
                     for (i in 0..percent) { print("#") }
                     for (i in 0..100-percent){ print("-") }
-                    print("] \n\n")
+                    print("] \n")
                 }
 
-                // metadata
-                if(lineNumber < 6)
-                    continue
-                if(lineNumber == 6){
-                    numNodes = parseInt(line)
-                    adjacencyList = Array(numNodes) { _ -> Node(1, 1.0, 1.0) }
-                    continue
-                }
-                if (lineNumber == 7){
-                    numEdges = parseInt(line)
-                    continue
-                }
-                // Organize Nodes
-                if(lineNumber <= numNodes + offset) {
-                    lineString = line.split(" ")
+                val lastNodeId =
 
-                    //println("index: " + (lineNumber - offset).toString() + ", linestring: " + lineString)
-                    adjacencyList[lineNumber - offset - 1] = Node(
-                        lineString[0].toInt(),
-                        lineString[2].toDouble(),
-                        lineString[3].toDouble()
-                    )
-                // Organize Edges
-                } else {
-                    val lineString = line.split(" ")
+                when (lineNumber) {
+                    // metadata
+                    in (0..5) -> {
+                        continue
+                    }
+                    6 -> {
+                        numNodes = line.toInt()
 
-                    val edge = Edge(parseInt(lineString[0]), parseInt(lineString[1]), parseInt(lineString[2]), parseInt(lineString[3]), parseInt(lineString[4]))
-                    adjacencyList[edge.preDecessor].addEdge(edge)
+                        lat = DoubleArray(numNodes)
+                        lon = DoubleArray(numNodes)
+                        predecessor = IntArray(numNodes)
+                        nodeWeight = IntArray(numNodes)
+                        for (i in 0 until numNodes) {
+                            nodeWeight[i] = Int.MAX_VALUE
+                        }
+                        var edgeListPos = IntArray(numNodes)
+                        var edgeAmount = IntArray(numNodes)
+
+                    }
+                    7 -> {
+                        numEdges = line.toInt()
+
+                        //edgeCost = IntArray(numEdges)
+                        edgeList = IntArray(3 * numEdges)
+                    }
+                    // Organize Nodes
+                    in (8..numNodes+offset) -> {
+                        lineString = line.split(" ")
+
+                        lat[lineNumber - offset - 1] = lineString[2].toDouble()
+                        lon[lineNumber - offset - 1] = lineString[3].toDouble()
+                    }
+                    // Organize Edges
+                    else -> {
+                        val lineString = line.split(" ")
+
+                        val _edgeNum = lineNumber - numNodes - offset - 1
+
+                        //edgeList[2 * _edgeNum] = lineString[0].toInt()        // source
+                        edgeList[2 * _edgeNum] = lineString[1].toInt()          // target
+                        edgeList[2 * _edgeNum + 1] = lineString[2].toInt()      // cost
+
+                    }
                 }
             }
             reader.close()
-            return Graph(numNodes, numEdges, adjacencyList)
         }
 
+
+
+        /**
+         * Searches with binary search in the edgeList for all the outgoing edges.
+         * Returns an Iterable of Pairs structured as follows: Pair<targetNodeId, cost>.
+         */
+        fun getOutgoingEdges(nodeId : Int) : IntArray {
+            return getOutgoingEdges(nodeId, 0, Graph.numEdges - 1)
+        }
+
+
+        private fun getOutgoingEdges(nodeId : Int, start : Int, end : Int) : IntArray {
+
+            val middle : Int = ((end - start) / 2) + start
+            //println("startNode: ${edgeList[2 * start]}, middleNode: ${edgeList[2 * middle]}, endNode: ${edgeList[2 * end]}")
+            //println("start: ${start}, middle: ${middle}, end: ${end}")
+
+            return if ( edgeList[3 * end] - edgeList[3 * start] <= 10) {
+                sequentialSearch(nodeId, start, end)
+            } else if ( edgeList[3 * middle] < nodeId ) {
+                getOutgoingEdges(nodeId, middle, end )
+            } else {
+                getOutgoingEdges(nodeId, start, middle)
+            }
+        }
+
+        // letztes Stück sequentiell suchen
+        private fun sequentialSearch(nodeId: Int, start: Int, end: Int): IntArray {
+
+            val outgoingEdges = LinkedList<Int>()
+            var foundEdges = 0
+            var tempNode = start - 11       // weil max outgoingEdges ist 11
+            if (tempNode < 0) {
+                tempNode = 0
+            }
+
+            while (tempNode <= end + 11) {       // weil max outgoingEdges ist 11
+                var performance = 3 * tempNode
+                if (edgeList[performance] == nodeId) {
+                    outgoingEdges.add(edgeList[performance + 1])
+                    outgoingEdges.add(edgeList[performance + 2])
+                    foundEdges++
+                }
+
+                // increment
+                if (tempNode < numEdges - 1) {
+                    tempNode++
+                } else {
+                    break
+                }
+            }
+
+            return outgoingEdges.toIntArray()
+        }
+
+
+
+        /*
         /**
          *  fickt euch alle kotlin parse int developer
          */
-        private fun parseInt(string : String) : Int{
-            return string.toDouble().toInt()
+        private fun parseInt(string : String) : Int {
+            return string.toInt()
         }
+         */
+
     }
-
-
 
 }
 
