@@ -1,8 +1,6 @@
 package graph
 
 import java.io.File
-import java.util.*
-import java.util.function.IntBinaryOperator
 
 // 0 1488520 147 9 130
 
@@ -64,6 +62,8 @@ class Graph() {
             // organize data structure (edgeList)
             var lineNumber = 0
             val offset = 7
+            var lastNodeId : Int = 0
+            var amountCurrentEdges : Int = 0
             while(iterator.hasNext()) {
                 val line = iterator.next()
                 lineNumber++
@@ -78,7 +78,6 @@ class Graph() {
                     print("] \n")
                 }
 
-                val lastNodeId =
 
                 when (lineNumber) {
                     // metadata
@@ -95,8 +94,8 @@ class Graph() {
                         for (i in 0 until numNodes) {
                             nodeWeight[i] = Int.MAX_VALUE
                         }
-                        var edgeListPos = IntArray(numNodes)
-                        var edgeAmount = IntArray(numNodes)
+                        edgeListPos = IntArray(numNodes)
+                        edgeAmount = IntArray(numNodes)
 
                     }
                     7 -> {
@@ -116,11 +115,22 @@ class Graph() {
                     else -> {
                         val lineString = line.split(" ")
 
-                        val _edgeNum = lineNumber - numNodes - offset - 1
+                        val currentEdge = lineNumber - numNodes - offset - 1
+                        var source = lineString[0].toInt()        // source
 
-                        //edgeList[2 * _edgeNum] = lineString[0].toInt()        // source
-                        edgeList[2 * _edgeNum] = lineString[1].toInt()          // target
-                        edgeList[2 * _edgeNum + 1] = lineString[2].toInt()      // cost
+                        if (source == lastNodeId) {
+                            amountCurrentEdges++
+                        }
+                        else {
+                            edgeAmount[lastNodeId] = amountCurrentEdges
+                            edgeListPos[source] = currentEdge
+
+                            lastNodeId = source
+                            amountCurrentEdges = 1
+                        }
+
+                        edgeList[2 * currentEdge] = lineString[1].toInt()          // target
+                        edgeList[2 * currentEdge + 1] = lineString[2].toInt()      // cost
 
                     }
                 }
@@ -129,7 +139,20 @@ class Graph() {
         }
 
 
+        fun getOutgoingEdges(nodeId : Int) : IntArray {
+            var len = edgeAmount[nodeId]
+            //var performance =
 
+            var intArray : IntArray = IntArray(2 * len)
+            for (i in 0 until len) {
+                intArray[2 * i] = edgeList[ (2 * edgeListPos[nodeId]) + (2 * i) ]
+                intArray[2 * i + 1] = edgeList[ (2 * edgeListPos[nodeId]) + (2 * i) + 1 ]
+            }
+            return intArray
+        }
+
+
+/*
         /**
          * Searches with binary search in the edgeList for all the outgoing edges.
          * Returns an Iterable of Pairs structured as follows: Pair<targetNodeId, cost>.
@@ -182,6 +205,13 @@ class Graph() {
 
             return outgoingEdges.toIntArray()
         }
+
+ */
+
+
+
+
+
 
 
 

@@ -7,7 +7,7 @@ import java.util.*
 import java.util.concurrent.Executors
 import kotlin.system.measureTimeMillis
 
-val serializeGraphTime = measureTimeMillis { Graph.parseGraph(getResourceLocation("MV.fmi"))}
+val serializeGraphTime = measureTimeMillis { Graph.parseGraph(getResourceLocation("germany.fmi"))}
 val processDijkstra = measureTimeMillis { Dijkstra(0) }
 
 fun getAbsolutePath() : String{
