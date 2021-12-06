@@ -1,14 +1,14 @@
 import graph.Graph
 import pathfind.Dijkstra
-import pathfind.Tree
-import pathfind.TreeNode
 import java.io.File
 import java.util.*
 import java.util.concurrent.Executors
 import kotlin.system.measureTimeMillis
-
+import closestNode.getClosestNodeNaively
 val serializeGraphTime = measureTimeMillis { Graph.parseGraph(getResourceLocation("germany.fmi"))}
 val processDijkstra = measureTimeMillis { Dijkstra(8371825) }
+val closestNode : Int
+val closestNodeTime = measureTimeMillis { closestNode = getClosestNodeNaively(53.51864840000000239, 10.01621140000000132, Graph.lat, Graph.lon)}
 
 fun getAbsolutePath() : String{
     val directory = File("")
@@ -16,14 +16,19 @@ fun getAbsolutePath() : String{
 }
 
 fun getResourceLocation(fileName : String) : String{
-    return "C:/Users/asdf3/IdeaProjects/" + fileName
+    return getAbsolutePath() + "/src/main/kotlin/resources/" + fileName
 }
 
 fun main(args: Array<String>) {
     val seconds = serializeGraphTime / 1000.0
     val secondsDijkstra = processDijkstra / 1000.0
+    val secondsClosestNode = closestNodeTime / 1000.0
     println("$seconds seconds to serialize the graph")
     println("$secondsDijkstra seconds needed to process Dijkstra")
+    val l2 = Graph.lon[closestNode]
+    val l1 = Graph.lat[closestNode]
+    println("$secondsClosestNode seconds needed to find the closest Node, it is $closestNode at $l1, $l2")
+
 
     //println(Graph.nodeWeight[434859] )
     println(Graph.nodeWeight[16743651] )
