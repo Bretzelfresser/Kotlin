@@ -3,9 +3,13 @@ package main
 import graph.Graph
 import pathfind.Dijkstra
 import closestNode.getClosestNodeNaively
+import com.sun.net.httpserver.HttpExchange
+import com.sun.net.httpserver.HttpServer
 import mapServer.MapServer
 import java.io.BufferedReader
 import java.io.FileReader
+import java.net.InetSocketAddress
+import java.nio.charset.StandardCharsets
 import java.util.*
 
 
@@ -25,10 +29,11 @@ var sourceNodeId : Int = 0
 
 
 fun main(args: Array<String>) {
-    var server = MapServer();
+
+
     // to test in IDE - edit on a personal basis
     if (args.isEmpty()) {
-        graphDirectory = ""                //"C:\\Users\\asdf3\\OneDrive - bwedu\\Uni\\3. Semester\\Programmier Projekt\\germany.fmi"
+        graphDirectory = "C:\\Users\\asdf3\\OneDrive - bwedu\\Uni\\3. Semester\\Programmier Projekt\\germany.fmi"                //"C:\\Users\\asdf3\\OneDrive - bwedu\\Uni\\3. Semester\\Programmier Projekt\\germany.fmi"
         lon = 0.0
         lat = 0.0
         quePath = ""                        //"C:\\Users\\asdf3\\OneDrive - bwedu\\Uni\\3. Semester\\Programmier Projekt\\Benchs\\germany.que"
@@ -42,7 +47,11 @@ fun main(args: Array<String>) {
         quePath = args[7]
         sourceNodeId = args[9].toInt()
     }
+    
+    Graph.parseGraph( graphDirectory )
+    MapServer.setupServer();
 
+    /*
     // run benchmarks
     // TODO: read graph here
     println("Reading graph file $graphDirectory")
@@ -105,8 +114,8 @@ fun main(args: Array<String>) {
     // targetNodeId as computed by the one-to-all Dijkstra
     println("Distance from $sourceNodeId to $targetNodeId is $oneToAllDistance")
 
+     */
+
 
 
 }
-
-
