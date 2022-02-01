@@ -3,6 +3,7 @@ package main
 import graph.Graph
 import pathfind.Dijkstra
 import closestNode.getClosestNodeNaively
+import mapServer.MapServer
 import java.io.BufferedReader
 import java.io.FileReader
 import java.util.*
@@ -24,7 +25,7 @@ var sourceNodeId : Int = 0
 
 
 fun main(args: Array<String>) {
-
+    var server = MapServer();
     // to test in IDE - edit on a personal basis
     if (args.isEmpty()) {
         graphDirectory = ""                //"C:\\Users\\asdf3\\OneDrive - bwedu\\Uni\\3. Semester\\Programmier Projekt\\germany.fmi"
