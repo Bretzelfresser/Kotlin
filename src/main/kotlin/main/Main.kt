@@ -52,6 +52,29 @@ fun main(args: Array<String>) {
     MapServer.setupServer();
 
     /*
+    println(Graph.predecessor[10])
+    println(Graph.predecessor[9])
+    println("starting dijkstra")
+    Dijkstra(10)
+    println("finisched dijkstra")
+    println(Graph.predecessor[10])
+    println(Graph.predecessor[9])
+    var currentPath = Graph.returnPath(10)
+    println("path length 1: ${currentPath.size}")
+    while (!currentPath.isEmpty()) {
+        print(currentPath[0].toString() + ", ")
+        currentPath.removeFirst()
+    }
+    currentPath = Graph.returnPath(9)
+    println("path length 0: ${currentPath.size}")
+    while (!currentPath.isEmpty()) {
+        print(currentPath[0].toString() + ", ")
+        currentPath.removeFirst()
+    }
+
+     */
+
+    /*
     // run benchmarks
     // TODO: read graph here
     println("Reading graph file $graphDirectory")

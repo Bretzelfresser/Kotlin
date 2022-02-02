@@ -20,6 +20,7 @@
         var amountMarkers = 0;
         var startMarker = null;
         var endMarker = null;
+        var polyline = null;
         var greenIcon = new L.Icon({
             iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
             shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
@@ -34,7 +35,23 @@
         }).addTo(map);
         
         function onMapClick(e) {
-            getCoords("/getClosestNode?lat="+e.latlng.lat+"&lon="+e.latlng.lng, coordsCallback);
+            // Startpoint
+            if (amountMarkers == 0) {
+                getCoords("/getClosestNode?lat="+e.latlng.lat+"&lon="+e.latlng.lng+"&amountMarkers="+amountMarkers, startMarkerCallback);
+            }
+            // Endpoint
+            if (amountMarkers == 1) {
+                getCoords("/getClosestNode?lat="+e.latlng.lat+"&lon="+e.latlng.lng+"&amountMarkers="+amountMarkers, endMarkerCallback);
+            }
+            // Reset
+            if (amountMarkers >= 2) {
+                map.removeLayer(startMarker);
+                map.removeLayer(endMarker);
+                map.removeLayer(polyline);
+                amountMarkers = -1;
+                console.log("Removed all markers")
+            }
+            amountMarkers++;
         }
 
         getCoords = function(Url, callback)
@@ -48,25 +65,29 @@
             request.send( null );
         }
 
-        function coordsCallback(data) {
+        function startMarkerCallback(data) {
             var coordsStrings = data.split(",");
-            let lat = coordsStrings[0];
-            let lon = coordsStrings[1];
-            if (amountMarkers == 0) {
-                startMarker = L.marker([lat, lon]).addTo(map);
-                console.log("Added blue starting marker at: " + coordsStrings)
+            let lat = coordsStrings.shift();
+            let lon = coordsStrings.shift();
+            startMarker = L.marker([lat, lon]).addTo(map);
+            console.log("Added blue starting marker at: " + coordsStrings)
+        }
+        
+        function endMarkerCallback(data) {
+            var responseStrings = data.split(",");
+            var pathPositions = [];
+            let lat = responseStrings[0];
+            let lon = responseStrings[1];
+            endMarker = L.marker([lat, lon], {icon: greenIcon}).addTo(map);
+            console.log("Added green ending marker at: " + responseStrings)
+            
+            responseStrings.pop();
+            while (responseStrings.length > 0) { 
+                var helperarray = [responseStrings.shift(), responseStrings.shift()];
+                pathPositions.push( helperarray );
             }
-            if (amountMarkers == 1) {
-                endMarker = L.marker([lat, lon], {icon: greenIcon}).addTo(map);
-                console.log("Added green ending marker at: " + coordsStrings)
-            }
-            if (amountMarkers >= 2) {
-                map.removeLayer(startMarker);
-                map.removeLayer(endMarker);
-                amountMarkers = -1;
-                console.log("Removed all markers")
-            }
-            amountMarkers++;
+            //console.log(pathPositions);
+            polyline = L.polyline(pathPositions, {color: 'red'}).addTo(map);
         }
 
         map.on('click', onMapClick);

@@ -26,7 +26,7 @@ class Dijkstra(val startId : Int) {
 
         var prioAdd : Long = 0
         var prioPoll : Long = 0
-        //var amountProcessed : Int = 0
+        var amountProcessed : Int = 0
 
         for (i in Graph.nodeWeight.indices) {
             Graph.nodeWeight[i] = Int.MAX_VALUE
@@ -34,6 +34,7 @@ class Dijkstra(val startId : Int) {
         val startPair = Pair(startId, 0)
         Graph.nodeWeight[startId] = 0
         priorityQueue.add(startPair)
+        Graph.predecessor = IntArray(Graph.numNodes) { it }
 
 
         // Schleifenvariablen deklarieren
@@ -62,11 +63,13 @@ class Dijkstra(val startId : Int) {
                 else {
                     newWeight = edgeCost + Graph.nodeWeight[currentNode.first]
                     if (targetNodeWeight == Int.MAX_VALUE) {
+                        Graph.predecessor[targetNode] = currentNode.first
                         Graph.nodeWeight[targetNode] = newWeight
                         prioAdd += measureTimeMillis {priorityQueue.add( Pair(targetNode, newWeight) )}
                     }
                     else if (newWeight < targetNodeWeight) {
                         //prioRemove += measureTimeMillis{ priorityQueue.remove(Pair(targetNode, targetNodeWeight)) }
+                        Graph.predecessor[targetNode] = currentNode.first
                         Graph.nodeWeight[targetNode] = newWeight
                         prioAdd += measureTimeMillis { priorityQueue.add( Pair(targetNode, newWeight)) }
                     }
@@ -75,7 +78,7 @@ class Dijkstra(val startId : Int) {
             }
             processedNodes[currentNode.first] = true
 
-            /*
+
             // print progress
             amountProcessed++
             if (amountProcessed%(Math.pow(10.0, 6.0).toInt()) == 0) {
@@ -86,7 +89,7 @@ class Dijkstra(val startId : Int) {
                 print("] Task: Processing Dijkstra. \n")
             }
 
-             */
+
 
         }
 

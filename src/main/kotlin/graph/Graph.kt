@@ -1,6 +1,7 @@
 package graph
 
 import java.io.*
+import java.util.*
 import kotlin.math.pow
 
 class Graph {
@@ -13,10 +14,10 @@ class Graph {
 
         var lat = DoubleArray(0)
         var lon = DoubleArray(0)
-        private var predecessor = IntArray(0)
+        var predecessor = IntArray(0)
         var nodeWeight = IntArray(0)
 
-        // edgeList: [ endNode1, cost1, endNode2, cost2 endNode3, cost3, ... ]
+        // edgeList: [ endNode1, cost1, endNode2, cost2, endNode3, cost3, ... ]
         // edgeListPos speichert die position in der edgeList, an der die ausgehenden Kanten der node starten
         // edgeAmound speichert die Anzahl an ausgehenden Kanten der node
         var edgeList = IntArray(0)
@@ -53,7 +54,7 @@ class Graph {
 
                         lat = DoubleArray(numNodes)
                         lon = DoubleArray(numNodes)
-                        predecessor = IntArray(numNodes)
+                        predecessor = IntArray(numNodes) { it }
                         nodeWeight = IntArray(numNodes)
                         for (j in 0 until numNodes) {
                             nodeWeight[j] = Int.MAX_VALUE
@@ -105,6 +106,19 @@ class Graph {
                 intArray[2 * i + 1] = edgeList[ (2 * edgeListPos[nodeId]) + (2 * i) + 1 ]
             }
             return intArray
+        }
+
+        fun returnPath(endNodeID : Int) : LinkedList<Int> {
+
+            val path = LinkedList<Int>()
+            var currentNode = endNodeID
+
+            while (predecessor[currentNode] != currentNode) {
+                path.add(predecessor[currentNode])
+                currentNode = predecessor[currentNode]
+            }
+
+            return path
         }
 
         /*

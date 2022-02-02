@@ -6,8 +6,10 @@ import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpHandler
 import com.sun.net.httpserver.HttpServer
 import graph.Graph
+import pathfind.Dijkstra
 import java.io.File
 import java.io.IOException
+import java.lang.IllegalArgumentException
 import java.net.InetSocketAddress
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
@@ -33,7 +35,7 @@ class MapServer {
         }
 
         fun contextMain() {
-            println("creating main context..")
+            println("creating main context...")
             server.createContext("/") { exchange: HttpExchange ->
                 exchange.sendResponseHeaders(200, File(path).length())
                 val output = exchange.responseBody
@@ -43,16 +45,36 @@ class MapServer {
         }
 
         fun contextClosestNode() {
-            println("creating closest node context..")
+            println("creating closest node context...")
             server.createContext("/getClosestNode") { exchange: HttpExchange ->
                 val parms = queryToMap(exchange.requestURI.query)
                 var closestNode = getClosestNodeNaively(parms["lat"]!!.toDouble(), parms["lon"]!!.toDouble())
-                var response = ""+Graph.lat[closestNode]+","+Graph.lon[closestNode]
-                println(response)
-
-                exchange.sendResponseHeaders(200, response.toByteArray(StandardCharsets.UTF_8).size.toLong())
+                var response = ""+Graph.lat[closestNode]+","+Graph.lon[closestNode]+","
                 val output = exchange.responseBody
-                output.write(response.toByteArray(StandardCharsets.UTF_8))
+
+                if (parms["amountMarkers"]!!.toInt() == 0) {
+                    println("starting Dijkstra...")
+                    Dijkstra(closestNode);
+                    println("finished Dijkstra")
+
+                    exchange.sendResponseHeaders(200, response.toByteArray(StandardCharsets.UTF_8).size.toLong())
+                    output.write(response.toByteArray(StandardCharsets.UTF_8))
+                }
+                else if (parms["amountMarkers"]!!.toInt() == 1) {
+
+                    var currentPath = Graph.returnPath(closestNode)
+
+                    while (!currentPath.isEmpty()) {
+                        response += Graph.lat[currentPath[0]].toString() + ","
+                        response += Graph.lon[currentPath[0]].toString() + ","
+                        currentPath.removeFirst()
+                    }
+                    exchange.sendResponseHeaders(200, response.toByteArray(StandardCharsets.UTF_8).size.toLong())
+                    output.write(response.toByteArray(StandardCharsets.UTF_8))
+                }
+                else throw IllegalArgumentException("amountMarkers have to be 0 or 1!");
+                //println(response)
+
                 output.close()
             }
         }
