@@ -6,36 +6,57 @@ import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpHandler
 import com.sun.net.httpserver.HttpServer
 import graph.Graph
+import java.io.File
 import java.io.IOException
 import java.net.InetSocketAddress
+import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
+import java.nio.file.Files
+import java.nio.file.Path
 import java.util.concurrent.Executor
+import java.util.logging.Handler
 
 class MapServer {
 
     companion object {
+
+        var path = "html\\html test.html"
+
         val server = HttpServer.create(InetSocketAddress(8080), 0)
         fun setupServer()
         {
             println("setting up server...")
+            contextMain()
+            contextClosestNode()
+            server.start()
+            println("server started!")
+        }
+
+        fun contextMain() {
+            println("creating main context..")
+            server.createContext("/") { exchange: HttpExchange ->
+                exchange.sendResponseHeaders(200, File(path).length())
+                val output = exchange.responseBody
+                output.write(File(path).readBytes())
+                output.close()
+            }
+        }
+
+        fun contextClosestNode() {
+            println("creating closest node context..")
             server.createContext("/getClosestNode") { exchange: HttpExchange ->
-                val parms = MapServer.queryToMap(exchange.requestURI.query)
-                val input = exchange.requestBody
-
-                var closestNode = getClosestNodeNaively(parms["lon"]!!.toDouble(), parms["lat"]!!.toDouble())
-                println(closestNode)
-                var response = "closest Node is at lon: " + Graph.lon[closestNode] + ", lat: " + Graph.lat[closestNode]
-
+                val parms = queryToMap(exchange.requestURI.query)
+                var closestNode = getClosestNodeNaively(parms["lat"]!!.toDouble(), parms["lon"]!!.toDouble())
+                var response = ""+Graph.lat[closestNode]+","+Graph.lon[closestNode]
+                println(response)
 
                 exchange.sendResponseHeaders(200, response.toByteArray(StandardCharsets.UTF_8).size.toLong())
                 val output = exchange.responseBody
-
-                output.write((response).toByteArray(StandardCharsets.UTF_8))
+                output.write(response.toByteArray(StandardCharsets.UTF_8))
                 output.close()
-
             }
-            server.start()
         }
+
 
         fun queryToMap(query: String): Map<String, String> {
             val result: MutableMap<String, String> = HashMap()
@@ -49,5 +70,7 @@ class MapServer {
             }
             return result
         }
+
+
     }
 }

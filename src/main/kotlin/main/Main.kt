@@ -47,7 +47,7 @@ fun main(args: Array<String>) {
         quePath = args[7]
         sourceNodeId = args[9].toInt()
     }
-    
+
     Graph.parseGraph( graphDirectory )
     MapServer.setupServer();
 

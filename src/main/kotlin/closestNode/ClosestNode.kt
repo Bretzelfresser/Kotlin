@@ -11,7 +11,7 @@ fun getClosestNodeNaively(lat : Double, lon : Double) : Int{
 
     var min = Double.MAX_VALUE
     var minIdx = -1
-    var distance : Double
+    var distance : Double = Double.MAX_VALUE
 
     for(i in lats.indices){
         distance = getDistanceSquared(lat, lon, lats[i], lons[i])
@@ -20,8 +20,9 @@ fun getClosestNodeNaively(lat : Double, lon : Double) : Int{
             minIdx = i
         }
     }
-    //distance = sqrt(distance)
-    //println("distance: $distance")
+    println("index is: $minIdx")
+    distance = sqrt(distance)
+    println("distance: $distance")
     return minIdx
 }
 

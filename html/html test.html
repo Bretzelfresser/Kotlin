@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+    crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+    crossorigin=""></script>
+	 <style> 
+     	#map {height:  800px; position: abolute; top: 10; bottom: 10; left: 10; right: 10;}
+     </style>
+</head>                                                 
+<body>
+	<h1>Programmierprojekt 2021/22 Wiegel, Koppenhoefer, Wannke</h1>
+	<h2>Eingebundene Karte:</h2>
+	<p>Karte ueber Leaflet eingbunden:</p>
+
+    <div id="map"></div>
+    <script>
+        var map = L.map('map').setView([10, 10] , 1);
+
+        L.tileLayer('https://api.maptiler.com/maps/basic/256/{z}/{x}/{y}.png?key=Q6IOPULDWc8NFSXjmQD5', {
+            attribution: '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>',
+        }).addTo(map);
+        
+        function onMapClick(e) {
+            getCoords("/getClosestNode?lat="+e.latlng.lat+"&lon="+e.latlng.lng, coordsCallback);
+        }
+
+        getCoords = function(theUrl, callback)
+        {
+            var request = new XMLHttpRequest();
+            request.onreadystatechange = function() {
+                if (request.readyState == 4 && request.status == 200)
+                    callback(request.responseText);
+            }
+            request.open( "GET", theUrl, true );
+            request.send( null );
+        }
+
+        function coordsCallback(data) {
+            var coordsStrings = data.split(",");
+            console.log(data);
+            let lat = coordsStrings[0];
+            let lon = coordsStrings[1];
+            var marker = L.marker([lat, lon]).addTo(map);
+        }
+
+        map.on('click', onMapClick);
+    </script>
+
+</body>
+</html>
