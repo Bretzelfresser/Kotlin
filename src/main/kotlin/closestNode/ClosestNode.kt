@@ -20,9 +20,9 @@ fun getClosestNodeNaively(lat : Double, lon : Double) : Int{
             minIdx = i
         }
     }
-    println("index is: $minIdx")
-    distance = sqrt(distance)
-    println("distance: $distance")
+    //println("index is: $minIdx")
+    //distance = sqrt(distance)
+    //println("distance: $distance")
     return minIdx
 }
 
