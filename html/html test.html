@@ -20,7 +20,9 @@
         var amountMarkers = 0;
         var startMarker = null;
         var endMarker = null;
-        var polyline = null;
+        var layerGroup = null;
+        var geojsonLayer = null;
+        var pathLine = null;
         var greenIcon = new L.Icon({
             iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
             shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
@@ -47,7 +49,7 @@
             if (amountMarkers >= 2) {
                 map.removeLayer(startMarker);
                 map.removeLayer(endMarker);
-                map.removeLayer(polyline);
+                layerGroup.removeLayer(geojsonLayer);
                 amountMarkers = -1;
                 console.log("Removed all markers")
             }
@@ -70,7 +72,7 @@
             let lat = coordsStrings.shift();
             let lon = coordsStrings.shift();
             startMarker = L.marker([lat, lon]).addTo(map);
-            console.log("Added blue starting marker at: " + coordsStrings)
+            console.log("Added blue starting marker");
         }
         
         function endMarkerCallback(data) {
@@ -79,15 +81,20 @@
             let lat = responseStrings[0];
             let lon = responseStrings[1];
             endMarker = L.marker([lat, lon], {icon: greenIcon}).addTo(map);
-            console.log("Added green ending marker at: " + responseStrings)
+            console.log("Added green ending marker");
             
             responseStrings.pop();
             while (responseStrings.length > 0) { 
-                var helperarray = [responseStrings.shift(), responseStrings.shift()];
-                pathPositions.push( helperarray );
+                var helperarray = [ parseFloat(responseStrings.shift()), parseFloat(responseStrings.shift()) ];
+                pathPositions.push( [helperarray[1], helperarray[0]] );
             }
             //console.log(pathPositions);
-            polyline = L.polyline(pathPositions, {color: 'red'}).addTo(map);
+            pathLine = [ { "type": "LineString", "coordinates": pathPositions }];
+            geojsonLayer = L.geoJSON().addTo(map);
+            geojsonLayer.addData(pathLine);
+            layerGroup = new L.LayerGroup();
+            layerGroup.addTo(map);
+            layerGroup.addLayer(geojsonLayer);
         }
 
         map.on('click', onMapClick);

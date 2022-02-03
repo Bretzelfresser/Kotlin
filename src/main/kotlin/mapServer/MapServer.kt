@@ -27,7 +27,7 @@ class MapServer {
         val server = HttpServer.create(InetSocketAddress(8080), 0)
         fun setupServer()
         {
-            println("setting up server...")
+            println("setting up server at address ${server.address}")
             contextMain()
             contextClosestNode()
             server.start()

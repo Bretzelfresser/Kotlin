@@ -49,7 +49,7 @@ fun main(args: Array<String>) {
     }
 
     Graph.parseGraph( graphDirectory )
-    MapServer.setupServer();
+    MapServer.setupServer()
 
     /*
     println(Graph.predecessor[10])
