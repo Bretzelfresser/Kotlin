@@ -40,12 +40,14 @@ fun main(args: Array<String>) {
         sourceNodeId = 0
     }
     // read parameters (parameters are expected in exactly this order)
-    else if (args.size == 10) {
+    else if (args.size == 1) {
         graphDirectory = args[1]
-        lon = args[3].toDouble()
+        /*lon = args[3].toDouble()
         lat = args[5].toDouble()
         quePath = args[7]
         sourceNodeId = args[9].toInt()
+
+         */
     }
 
     Graph.parseGraph( graphDirectory )
