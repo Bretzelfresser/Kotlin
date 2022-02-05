@@ -23,6 +23,8 @@ class MapServer {
     companion object {
 
         var path = "html\\html test.html"
+        var dancingBananaPath = "html\\banana_anim_custom.png"
+        var thinkinBananaPath = "html\\thinking_banana.png"
 
         val server = HttpServer.create(InetSocketAddress(8080), 0)
         fun setupServer()
@@ -30,6 +32,8 @@ class MapServer {
             println("setting up server at address ${server.address}")
             contextMain()
             contextClosestNode()
+            contextDancingBanana()
+            contextThinkingBanana()
             server.start()
             println("server started!")
         }
@@ -75,6 +79,28 @@ class MapServer {
                 else throw IllegalArgumentException("amountMarkers have to be 0 or 1!");
                 //println(response)
 
+                output.close()
+            }
+        }
+
+        fun contextDancingBanana() {
+            println("creating dancing banana context...")
+            server.createContext("/dancingBanana") { exchange: HttpExchange ->
+                exchange.sendResponseHeaders(200, File(dancingBananaPath).length())
+                val output = exchange.responseBody
+                //println("BANANA IS MF DANCING!")
+                output.write(File(dancingBananaPath).readBytes())
+                output.close()
+            }
+        }
+
+        fun contextThinkingBanana() {
+            println("creating thinking banana context...")
+            server.createContext("/thinkingBanana") { exchange: HttpExchange ->
+                exchange.sendResponseHeaders(200, File(thinkinBananaPath).length())
+                val output = exchange.responseBody
+                //println("Da banana must do the thinking...")
+                output.write(File(thinkinBananaPath).readBytes())
                 output.close()
             }
         }
