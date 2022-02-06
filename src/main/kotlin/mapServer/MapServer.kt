@@ -1,32 +1,26 @@
 package mapServer
 
 import closestNode.getClosestNodeNaively
-import com.sun.net.httpserver.HttpContext
 import com.sun.net.httpserver.HttpExchange
-import com.sun.net.httpserver.HttpHandler
 import com.sun.net.httpserver.HttpServer
 import graph.Graph
 import pathfind.Dijkstra
 import java.io.File
-import java.io.IOException
 import java.lang.IllegalArgumentException
 import java.net.InetSocketAddress
-import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
-import java.nio.file.Files
-import java.nio.file.Path
-import java.util.concurrent.Executor
-import java.util.logging.Handler
+import kotlin.collections.HashMap
 
 class MapServer {
 
     companion object {
 
-        var path = "html\\html test.html"
-        var dancingBananaPath = "html\\banana_anim_custom.png"
-        var thinkinBananaPath = "html\\thinking_banana.png"
+        private const val path = "html\\html test.html"
+        private const val dancingBananaPath = "html\\banana_anim_custom.png"
+        private const val thinkingBananaPath = "html\\thinking_banana.png"
 
-        val server = HttpServer.create(InetSocketAddress(8080), 0)
+        private val server = HttpServer.create(InetSocketAddress(8080), 0)
+
         fun setupServer()
         {
             println("setting up server at address ${server.address}")
@@ -38,7 +32,7 @@ class MapServer {
             println("server started!")
         }
 
-        fun contextMain() {
+        private fun contextMain() {
             println("creating main context...")
             server.createContext("/") { exchange: HttpExchange ->
                 exchange.sendResponseHeaders(200, File(path).length())
@@ -48,25 +42,26 @@ class MapServer {
             }
         }
 
-        fun contextClosestNode() {
+        private fun contextClosestNode() {
             println("creating closest node context...")
             server.createContext("/getClosestNode") { exchange: HttpExchange ->
                 val parms = queryToMap(exchange.requestURI.query)
-                var closestNode = getClosestNodeNaively(parms["lat"]!!.toDouble(), parms["lon"]!!.toDouble())
+                val closestNode = getClosestNodeNaively(parms["lat"]!!.toDouble(), parms["lon"]!!.toDouble())
                 var response = ""+Graph.lat[closestNode]+","+Graph.lon[closestNode]+","
                 val output = exchange.responseBody
 
+                // automatically starts the Dijkstra algorithm at the input location
                 if (parms["amountMarkers"]!!.toInt() == 0) {
                     println("starting Dijkstra...")
-                    Dijkstra(closestNode);
+                    Dijkstra(closestNode)
                     println("finished Dijkstra")
-
                     exchange.sendResponseHeaders(200, response.toByteArray(StandardCharsets.UTF_8).size.toLong())
                     output.write(response.toByteArray(StandardCharsets.UTF_8))
                 }
+                // returns the path to the target location
                 else if (parms["amountMarkers"]!!.toInt() == 1) {
 
-                    var currentPath = Graph.returnPath(closestNode)
+                    val currentPath = Graph.returnPath(closestNode)
 
                     while (!currentPath.isEmpty()) {
                         response += Graph.lat[currentPath[0]].toString() + ","
@@ -76,14 +71,13 @@ class MapServer {
                     exchange.sendResponseHeaders(200, response.toByteArray(StandardCharsets.UTF_8).size.toLong())
                     output.write(response.toByteArray(StandardCharsets.UTF_8))
                 }
-                else throw IllegalArgumentException("amountMarkers have to be 0 or 1!");
-                //println(response)
+                else throw IllegalArgumentException("amountMarkers have to be 0 or 1!")
 
                 output.close()
             }
         }
 
-        fun contextDancingBanana() {
+        private fun contextDancingBanana() {
             println("creating dancing banana context...")
             server.createContext("/dancingBanana") { exchange: HttpExchange ->
                 exchange.sendResponseHeaders(200, File(dancingBananaPath).length())
@@ -94,19 +88,19 @@ class MapServer {
             }
         }
 
-        fun contextThinkingBanana() {
+        private fun contextThinkingBanana() {
             println("creating thinking banana context...")
             server.createContext("/thinkingBanana") { exchange: HttpExchange ->
-                exchange.sendResponseHeaders(200, File(thinkinBananaPath).length())
+                exchange.sendResponseHeaders(200, File(thinkingBananaPath).length())
                 val output = exchange.responseBody
                 //println("Da banana must do the thinking...")
-                output.write(File(thinkinBananaPath).readBytes())
+                output.write(File(thinkingBananaPath).readBytes())
                 output.close()
             }
         }
 
 
-        fun queryToMap(query: String): Map<String, String> {
+        private fun queryToMap(query: String): Map<String, String> {
             val result: MutableMap<String, String> = HashMap()
             for (param in query.split("&").toTypedArray()) {
                 val pair = param.split("=").toTypedArray()

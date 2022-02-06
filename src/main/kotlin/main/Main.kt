@@ -3,13 +3,9 @@ package main
 import graph.Graph
 import pathfind.Dijkstra
 import closestNode.getClosestNodeNaively
-import com.sun.net.httpserver.HttpExchange
-import com.sun.net.httpserver.HttpServer
 import mapServer.MapServer
 import java.io.BufferedReader
 import java.io.FileReader
-import java.net.InetSocketAddress
-import java.nio.charset.StandardCharsets
 import java.util.*
 
 
@@ -23,8 +19,8 @@ var sourceNodeId : Int = 0
     HOW TO  COMPILE TO COMAND LINE:
      - navigate to the location of the Kotlin project folder e.g. "cd C:\Users\[user]\Dokumente\GitHub\Kotlin"
      - execute the gradle script using "gradlew jar"
-     - navigate to the newly compiled jar-file in .\Kotlin\build\libs\Kotlin-1.0-Snapshot.jar
-     - execute the script with whatever parameters you like eg "java -jar Kotlin-1.0-Snapshot.jar -graph /home/felix/germany.fmi -lon 9.098 -lat 48.746 -que /home/felix/germany.que -s 638394"
+     - navigate to the newly compiled jar-file in .\Kotlin\build\libs\Kotlin-2.0
+     - execute the script with the directory of the graph data eg "java -jar Kotlin-2.0.jar -graph /home/[user]/germany.fmi"
  */
 
 
@@ -40,45 +36,25 @@ fun main(args: Array<String>) {
         sourceNodeId = 0
     }
     // read parameters (parameters are expected in exactly this order)
-    else if (args.size == 1) {
+    else if (args.size == 2) {
         graphDirectory = args[1]
         /*lon = args[3].toDouble()
         lat = args[5].toDouble()
         quePath = args[7]
         sourceNodeId = args[9].toInt()
-
          */
     }
 
     Graph.parseGraph( graphDirectory )
     MapServer.setupServer()
 
-    /*
-    println(Graph.predecessor[10])
-    println(Graph.predecessor[9])
-    println("starting dijkstra")
-    Dijkstra(10)
-    println("finisched dijkstra")
-    println(Graph.predecessor[10])
-    println(Graph.predecessor[9])
-    var currentPath = Graph.returnPath(10)
-    println("path length 1: ${currentPath.size}")
-    while (!currentPath.isEmpty()) {
-        print(currentPath[0].toString() + ", ")
-        currentPath.removeFirst()
-    }
-    currentPath = Graph.returnPath(9)
-    println("path length 0: ${currentPath.size}")
-    while (!currentPath.isEmpty()) {
-        print(currentPath[0].toString() + ", ")
-        currentPath.removeFirst()
-    }
+}
 
-     */
+// was used for part one
+fun benchmark() {
 
-    /*
     // run benchmarks
-    // TODO: read graph here
+    // read graph here
     println("Reading graph file $graphDirectory")
     val graphReadStart = System.currentTimeMillis()
     Graph.parseGraph( graphDirectory )
@@ -86,7 +62,7 @@ fun main(args: Array<String>) {
     println("\tgraph read took " + (graphReadEnd - graphReadStart) + "ms")
 
 
-    // TODO: find closest node here
+    // find closest node here
     println("Finding closest node to coordinates $lon $lat")
     val nodeFindStart = System.currentTimeMillis()
     val closestNode = getClosestNodeNaively(lat, lon)
@@ -94,7 +70,7 @@ fun main(args: Array<String>) {
     println("\tfinding node $closestNode at lat: ${Graph.lat[closestNode]}, lon: ${Graph.lon[closestNode]} took " + (nodeFindEnd - nodeFindStart) + "ms")
 
 
-    // TODO set oneToOneDistance to the distance from
+    // set oneToOneDistance to the distance from
     println("Running one-to-one Dijkstras for queries in .que file $quePath")
     val queStart = System.currentTimeMillis()
     try {
@@ -123,7 +99,7 @@ fun main(args: Array<String>) {
     println("\tprocessing .que file took " + (queEnd - queStart) + "ms")
 
 
-    // TODO: run one-to-all Dijkstra here
+    // run one-to-all Dijkstra here
     println("Computing one-to-all Dijkstra from node id $sourceNodeId")
     val oneToAllStart = System.currentTimeMillis()
     Dijkstra(sourceNodeId)
@@ -131,7 +107,7 @@ fun main(args: Array<String>) {
     println("\tone-to-all Dijkstra took " + (oneToAllEnd - oneToAllStart) + "ms")
 
 
-    // TODO set oneToAllDistance to the distance from main.getSourceNodeId to
+    // set oneToAllDistance to the distance from main.getSourceNodeId to
     // ask user for a target node id
     print("Enter target node id... ")
     val targetNodeId = Scanner(System.`in`).nextInt()
@@ -139,8 +115,5 @@ fun main(args: Array<String>) {
     // targetNodeId as computed by the one-to-all Dijkstra
     println("Distance from $sourceNodeId to $targetNodeId is $oneToAllDistance")
 
-     */
-
-
-
 }
+

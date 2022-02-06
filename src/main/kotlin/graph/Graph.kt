@@ -96,7 +96,7 @@ class Graph {
             reader.close()
         }
 
-
+        // Function that returns all the outgoing edges of a given node.
         fun getOutgoingEdges(nodeId : Int) : IntArray {
             val len = edgeAmount[nodeId]
 
@@ -108,6 +108,7 @@ class Graph {
             return intArray
         }
 
+        // Function that returns a LinkedList containing the indexes of the nodes on the path to the endNode.
         fun returnPath(endNodeID : Int) : LinkedList<Int> {
 
             val path = LinkedList<Int>()
@@ -122,13 +123,11 @@ class Graph {
         }
 
         /*
-        /**
-         *  fickt euch alle kotlin parse int developer
-         */
+        // fickt euch alle kotlin parse int developer
         private fun parseInt(string : String) : Int {
             return string.toInt()
         }
-         */
+        */
 
     }
 

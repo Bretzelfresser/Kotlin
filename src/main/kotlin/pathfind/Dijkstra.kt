@@ -9,7 +9,7 @@ import kotlin.system.measureTimeMillis
  * graph Graph: A graph formatted as adjacency list.
  * startNode Int: The index of the starting node.
  */
-class Dijkstra(val startId : Int) {
+class Dijkstra(private val startId : Int) {
 
 
     init {
@@ -20,13 +20,13 @@ class Dijkstra(val startId : Int) {
     private fun preProcess(){
 
         val compareSecond = compareBy<Pair<Int, Int>> { it.second }
-        val priorityQueue = PriorityQueue<Pair<Int, Int>>(compareSecond)
+        val priorityQueue = PriorityQueue(compareSecond)
 
         val processedNodes = BooleanArray( Graph.numNodes ) { false }
 
         var prioAdd : Long = 0
         var prioPoll : Long = 0
-        var amountProcessed : Int = 0
+        var amountProcessed = 0
 
         for (i in Graph.nodeWeight.indices) {
             Graph.nodeWeight[i] = Int.MAX_VALUE
@@ -74,22 +74,19 @@ class Dijkstra(val startId : Int) {
                         prioAdd += measureTimeMillis { priorityQueue.add( Pair(targetNode, newWeight)) }
                     }
                 }
-
             }
             processedNodes[currentNode.first] = true
 
 
             // print progress
             amountProcessed++
-            if (amountProcessed%(Math.pow(10.0, 6.0).toInt()) == 0) {
+            if (amountProcessed%(Graph.numNodes / 20) == 0) {
                 val percent = (amountProcessed / (Graph.numNodes / 100.0f)).toInt()
                 print(String.format("%.1f", (amountProcessed / (Graph.numNodes / 100.0f))) + "% [")
                 for (i in 0..percent) { print("#") }
                 for (i in 0..100-percent){ print("-") }
                 print("] Task: Processing Dijkstra. \n")
             }
-
-
 
         }
 
@@ -99,4 +96,3 @@ class Dijkstra(val startId : Int) {
     }
 
 }
-
